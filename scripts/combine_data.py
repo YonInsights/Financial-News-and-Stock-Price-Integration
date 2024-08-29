@@ -1,46 +1,45 @@
 import pandas as pd
 
-# Load datasets
-df_ratings = pd.read_csv(r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\processed_analyst_ratings.csv')
-df_stock = pd.read_csv(r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\raw_stock_data.csv')
+# Define file paths
+sentiment_file_path = 'D:/10 Academy_Kifya/Week 1/Financial-News-and-Stock-Price-Integration/Data/processed_analyst_ratings.csv'
+stock_file_path = 'D:/10 Academy_Kifya/Week 1/Financial-News-and-Stock-Price-Integration/Data/yfinance_data/AAPL_historical_data.csv'
+output_file_path = 'D:/10 Academy_Kifya/Week 1/Financial-News-and-Stock-Price-Integration/Data/combined_data.csv'
 
-# Merge datasets
-df_combined = pd.merge(df_ratings, df_stock, on='common_column', how='inner')  # Replace 'common_column' with the actual column name
+# Load the datasets
+sentiment_df = pd.read_csv(sentiment_file_path)
+stock_df = pd.read_csv(stock_file_path)
 
-# Save the combined data
-df_combined.to_csv(r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\combined_data.csv', index=False)
+# Inspect the first few rows to determine the date format
+print("Sentiment DataFrame Date Column:")
+print(sentiment_df['Date'].head())
+print("Stock DataFrame Date Column:")
+print(stock_df['Date'].head())
 
-import pandas as pd
+# Convert Date columns to datetime format
+try:
+    # Specify format with timezone offset for sentiment data
+    sentiment_df['Date'] = pd.to_datetime(sentiment_df['Date'], format='%Y-%m-%d %H:%M:%S%z', errors='coerce')
+    # For stock data, no time zone, so use default format
+    stock_df['Date'] = pd.to_datetime(stock_df['Date'], format='%Y-%m-%d', errors='coerce')
+except Exception as e:
+    print(f"Error converting date columns: {e}")
 
-def combine_datasets(sentiment_path, stock_path, output_path, key_column):
-    """
-    Combines sentiment analysis data with stock data based on a common column.
-    
-    Parameters:
-    sentiment_path (str): Path to the sentiment analysis CSV file.
-    stock_path (str): Path to the stock data CSV file.
-    output_path (str): Path to save the combined data.
-    key_column (str): The column to join on.
-    """
-    try:
-        # Load datasets
-        df_sentiment = pd.read_csv(sentiment_path)
-        df_stock = pd.read_csv(stock_path)
+# Clean up column names
+sentiment_df.columns = sentiment_df.columns.str.strip()
+stock_df.columns = stock_df.columns.str.strip()
 
-        # Combine datasets
-        df_combined = pd.merge(df_sentiment, df_stock, on=key_column, how='inner')
+# Inspect unique dates
+print("Sentiment Dates:")
+print(sentiment_df['Date'].unique())
+print("Stock Dates:")
+print(stock_df['Date'].unique())
 
-        # Save combined data
-        df_combined.to_csv(output_path, index=False)
-        print(f"Combined data saved to {output_path}")
+# Merge DataFrames
+combined_df = pd.merge(sentiment_df, stock_df, on='Date', how='inner')
 
-    except Exception as e:
-        print(f"Error combining datasets: {e}")
+# Check combined DataFrame
+print("Combined DataFrame:")
+print(combined_df.head())
 
-if __name__ == "__main__":
-    sentiment_path = r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\processed_analyst_ratings.csv'
-    stock_path = r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\raw_stock_data.csv'
-    output_path = r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\combined_data.csv'
-    key_column = 'common_column'  # Replace with the actual column name you want to merge on
-
-    combine_datasets(sentiment_path, stock_path, output_path, key_column)
+# Save combined DataFrame
+combined_df.to_csv(output_file_path, index=False)
