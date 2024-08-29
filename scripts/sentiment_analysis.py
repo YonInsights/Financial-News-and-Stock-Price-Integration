@@ -24,6 +24,6 @@ def add_sentiment_scores(df):
     Returns:
     pd.DataFrame: The DataFrame with an added 'Sentiment' column.
     """
-    # Replace 'Headline' with the actual column name
-    df['Sentiment'] = df['Headline'].apply(analyze_sentiment)  
+    # Replace 'headline' with the actual column name if it differs
+    df['Sentiment'] = df['headline'].apply(analyze_sentiment)  
     return df
