@@ -68,3 +68,68 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Define file paths
+combined_data_path = r'D:\10 Academy_Kifya\Week 1\Financial-News-and-Stock-Price-Integration\Data\combined_data.csv'
+
+def load_and_inspect_data(file_path):
+    """
+    Loads the combined data from a CSV file and returns a DataFrame.
+    """
+    try:
+        df_combined = pd.read_csv(file_path)
+        print("Data loaded successfully.")
+        print(df_combined.head())
+        print(df_combined.describe())
+        return df_combined
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+    except Exception as e:
+        print(f"Error loading data: {e}")
+
+def plot_sentiment_vs_stock_price(df):
+    """
+    Plots Sentiment vs. Stock Price.
+    """
+    if df is not None:
+        plt.figure(figsize=(12, 6))
+        sns.scatterplot(x='Sentiment', y='StockPrice', data=df)  # Replace 'StockPrice' with your column name
+        plt.title('Sentiment vs. Stock Price')
+        plt.xlabel('Sentiment Score')
+        plt.ylabel('Stock Price')
+        plt.show()
+
+def plot_time_series(df):
+    """
+    Plots time series of Stock Prices and Sentiment Scores.
+    """
+    if df is not None:
+        # Convert 'Date' to datetime if necessary
+        df['Date'] = pd.to_datetime(df['Date'])  # Replace 'Date' with your date column
+
+        # Plot Stock Prices over Time
+        plt.figure(figsize=(14, 7))
+        sns.lineplot(x='Date', y='StockPrice', data=df)
+        plt.title('Stock Prices Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Stock Price')
+        plt.xticks(rotation=45)
+        plt.show()
+
+        # Plot Sentiment Score over Time
+        plt.figure(figsize=(14, 7))
+        sns.lineplot(x='Date', y='Sentiment', data=df)
+        plt.title('Sentiment Score Over Time')
+        plt.xlabel('Date')
+        plt.ylabel('Sentiment Score')
+        plt.xticks(rotation=45)
+        plt.show()
+
+if __name__ == "__main__":
+    df_combined = load_and_inspect_data(combined_data_path)
+    plot_sentiment_vs_stock_price(df_combined)
+    plot_time_series(df_combined)
